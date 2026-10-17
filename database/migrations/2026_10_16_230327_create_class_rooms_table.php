@@ -11,9 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('class_rooms', function (Blueprint $table) {
+        Schema::create('classrooms', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('teacher_id')->constrained('users')->restrictOnDelete();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->string('code')->unique();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
+            $table->index('teacher_id');
+            $table->index('is_active');
+            $table->index('name');
+
         });
     }
 
@@ -22,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('class_rooms');
+        Schema::dropIfExists('classrooms');
     }
 };
