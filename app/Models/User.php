@@ -26,11 +26,7 @@ class User extends Authenticatable
         'password',
         'role',
         'id_number',
-        'phone',
         'avatar',
-        'bio',
-        'language',
-        'timezone',
         'is_active',
         'last_login_at',
     ];

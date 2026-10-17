@@ -44,7 +44,6 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['sometimes', Rule::in(self::ROLES)],
             'id_number' => ['nullable', 'string', 'max:50', 'unique:users,id_number'],
-            'phone' => ['nullable', 'string', 'max:30'],
             'avatar' => ['nullable', 'string', 'max:255'],
             'bio' => ['nullable', 'string', 'max:2000'],
             'language' => ['sometimes', 'string', 'max:5'],
