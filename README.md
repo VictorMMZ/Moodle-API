@@ -4,7 +4,7 @@ API REST desarrollada con Laravel para un proyecto de plataforma educativa inspi
 
 El objetivo del proyecto es construir un backend que permita gestionar usuarios, cursos, tareas, entregas y comunicación entre profesores y alumnos. El desarrollo se realizará de forma incremental, incorporando nuevas funcionalidades y sus correspondientes pruebas automatizadas.
 
-> **Estado del proyecto:** en desarrollo. Actualmente se ha trabajado en la estructura inicial de la base de datos y en el sistema de autenticación.
+> **Estado del proyecto:** en desarrollo. Hecho: base de datos, autenticación y gestión de clases con matrículas. Pendiente: ejercicios, entregas, mensajes y notificaciones.
 
 ## Tecnologías
 
@@ -18,22 +18,10 @@ El objetivo del proyecto es construir un backend que permita gestionar usuarios,
 
 ## Funcionalidades implementadas
 
-### Base de datos
-- Creación de las migraciones iniciales.
-- Definición de la estructura inicial de las tablas del proyecto.
-
-### Autenticación
-- Inicio de sesión con validación de credenciales.
-- Comprobación de las credenciales del usuario.
-- Gestión de sesiones y regeneración del identificador tras iniciar sesión.
-- Cierre de sesión.
-- Protección de rutas mediante middleware de autenticación.
-- Actualización de la fecha del último acceso del usuario.
-- Pruebas automatizadas para comprobar el inicio de sesión correcto y el rechazo de credenciales inválidas.
-
-### Integración continua
-- Configuración inicial de un pipeline mediante GitHub Actions.
-- Ejecución automatizada de las comprobaciones configuradas en el workflow.
+- **Base de datos:** migraciones de usuarios, clases, matrículas, ejercicios, entregas, mensajes y notificaciones. Modelos Eloquent completos para `User`, `ClassRoom` y `ClassStudent`; el resto están vacíos.
+- **Autenticación:** login, logout y usuario actual con sesión y cookies (Sanctum), rutas protegidas y tests.
+- **Clases:** CRUD con soft delete, matrícula y baja de alumnos, y listado de participantes, con permisos por rol (`student`, `teacher`, `admin`). 47 tests en `ClassRoomTest`.
+- **Integración continua:** pipeline inicial con GitHub Actions.
 
 ## Requisitos previos
 
@@ -159,11 +147,10 @@ El proyecto utiliza un flujo de trabajo basado en ramas:
 
 ## Roadmap
 
-Las siguientes funcionalidades están previstas, pero todavía no se consideran implementadas:
+Las siguientes funcionalidades están previstas, pero todavía no se consideran implementadas,cuando lo estén estarán marcadas con (x):
 
-- [ ] Gestión completa de usuarios y roles.
-- [ ] Gestión de cursos.
-- [ ] Matriculación de alumnos.
+- [x] Gestión completa de usuarios y roles.
+- [x] Gestión de clases y matriculación de alumnos.
 - [ ] Creación y gestión de tareas.
 - [ ] Entrega de ejercicios por parte de los alumnos.
 - [ ] Corrección y retroalimentación del profesor.
