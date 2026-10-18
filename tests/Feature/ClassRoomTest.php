@@ -400,7 +400,7 @@ class ClassRoomTest extends TestCase
         $classroom = $this->makeClassroom($teacher);
         $this->actingAs($teacher, 'web');
 
-        $this->postJson("/api/participants/{$classroom->id}", ['user_id' => $student->id])->assertOk();
+        $this->postJson("/api/participants/{$classroom->id}", ['email' => $student->email])->assertOk();
 
         $this->assertDatabaseHas('class_students', [
             'class_id' => $classroom->id,
@@ -417,8 +417,8 @@ class ClassRoomTest extends TestCase
         $this->enroll($classroom, $student, 'inactive');
         $this->actingAs($teacher, 'web');
 
-        $this->postJson("/api/participants/{$classroom->id}", ['user_id' => $student->id])->assertOk();
-        $this->postJson("/api/participants/{$classroom->id}", ['user_id' => $student->id])->assertOk();
+        $this->postJson("/api/participants/{$classroom->id}", ['email' => $student->email])->assertOk();
+        $this->postJson("/api/participants/{$classroom->id}", ['email' => $student->email])->assertOk();
 
         $this->assertDatabaseCount('class_students', 1);
         $this->assertDatabaseHas('class_students', ['student_id' => $student->id, 'status' => 'active']);
@@ -444,11 +444,11 @@ class ClassRoomTest extends TestCase
         $this->actingAs($teacher, 'web');
 
         $this->postJson("/api/participants/{$classroom->id}", [])
-            ->assertStatus(422)->assertJsonValidationErrors('user_id');
-        $this->postJson("/api/participants/{$classroom->id}", ['user_id' => 'abc'])
-            ->assertStatus(422)->assertJsonValidationErrors('user_id');
-        $this->postJson("/api/participants/{$classroom->id}", ['user_id' => 9999])
-            ->assertStatus(422)->assertJsonValidationErrors('user_id');
+            ->assertStatus(422)->assertJsonValidationErrors('email');
+        $this->postJson("/api/participants/{$classroom->id}", ['email' => 'abc'])
+            ->assertStatus(422)->assertJsonValidationErrors('email');
+        $this->postJson("/api/participants/{$classroom->id}", ['email' => 'nonexistent@example.com'])
+            ->assertStatus(422)->assertJsonValidationErrors('email');
     }
 
     public function test_profesor_ajeno_no_puede_matricular(): void
