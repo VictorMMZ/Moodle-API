@@ -61,7 +61,8 @@ class User extends Authenticatable
     // Clases en las que está matriculado (alumno)
     public function enrolledClassrooms(): BelongsToMany
     {
-        return $this->belongsToMany(ClassRoom::class, 'class_students', 'student_id', 'classroom_id')
+        return $this->belongsToMany(ClassRoom::class, 'class_students', 'student_id', 'class_id')
+            ->withPivot('status', 'joined_at')
             ->withTimestamps();
     }
 
