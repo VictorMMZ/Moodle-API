@@ -99,9 +99,9 @@ class ClassRoomController extends Controller
 			return response()->json(['message' => 'No tienes permiso para matricular alumnos.'], 403);
 		}
 
-		$data = $request->validate(['user_id' => ['required', 'integer', 'exists:users,id']]);
+		$data = $request->validate(['email' => ['required', 'email', 'exists:users,email']]);
 
-		$student = User::findOrFail($data['user_id']);
+		$student = User::where('email', $data['email'])->firstOrFail();
 		if (!$student->isStudent()) {
 			return response()->json(['message' => 'El usuario indicado no es un alumno.'], 422);
 		}
