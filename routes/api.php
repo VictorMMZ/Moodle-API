@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassRoomController;
+use App\Http\Controllers\ExerciseController;
 
 // Rutas públicas
 Route::post('/login', [AuthController::class, 'login']);
@@ -21,4 +22,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/participants/{classroom}', [ClassRoomController::class, 'enrollStudent']);
     Route::delete('/participants/{classroom}/{studentId}', [ClassRoomController::class, 'unenrollStudent']);
 
+    Route::get('/exerciseindex', [ExerciseController::class, 'index']);
+    Route::post('/exercisestore', [ExerciseController::class, 'store']);
+    Route::get('/exerciseshow/{exercise}', [ExerciseController::class, 'show']);
+    Route::put('/exerciseupdate/{exercise}', [ExerciseController::class, 'update']);
+    Route::delete('/exercisedestroy/{exercise}', [ExerciseController::class, 'destroy']);
 });
