@@ -1,10 +1,11 @@
 
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\SubmissionController;
+use Illuminate\Support\Facades\Route;
 
 // Rutas públicas
 Route::post('/login', [AuthController::class, 'login']);
@@ -27,4 +28,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/exerciseshow/{exercise}', [ExerciseController::class, 'show']);
     Route::put('/exerciseupdate/{exercise}', [ExerciseController::class, 'update']);
     Route::delete('/exercisedestroy/{exercise}', [ExerciseController::class, 'destroy']);
+
+    Route::get('/submissionindex', [SubmissionController::class, 'index']);
+    Route::post('/submissionstore', [SubmissionController::class, 'store']);
+    Route::get('/submissionshow/{submission}', [SubmissionController::class, 'show']);
+    Route::put('/submissionupdate/{submission}', [SubmissionController::class, 'update']);
+    Route::put('/submissiongrade/{submission}', [SubmissionController::class, 'grade']);
+    Route::get('/submissionfile/{submission}', [SubmissionController::class, 'download']);
 });
