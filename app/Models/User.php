@@ -69,7 +69,7 @@ class User extends Authenticatable
     // Entregas realizadas (alumno)
     public function submissions(): HasMany
     {
-        return $this->hasMany(Submission::class);
+        return $this->hasMany(Submission::class, 'student_id');
     }
 
     public function sentMessages(): HasMany
