@@ -4,6 +4,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,4 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/submissionupdate/{submission}', [SubmissionController::class, 'update']);
     Route::put('/submissiongrade/{submission}', [SubmissionController::class, 'grade']);
     Route::get('/submissionfile/{submission}', [SubmissionController::class, 'download']);
+
+    Route::get('/messageindex', [MessageController::class, 'index']);
+    Route::post('/messagestore', [MessageController::class, 'store']);
+    Route::get('/messageshow/{message}', [MessageController::class, 'show']);
+    Route::put('/messageupdate/{message}', [MessageController::class, 'update']);
+    Route::delete('/messagedestroy/{message}', [MessageController::class, 'destroy']);
 });
