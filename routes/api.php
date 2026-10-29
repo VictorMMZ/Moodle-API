@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -44,4 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messageshow/{message}', [MessageController::class, 'show']);
     Route::put('/messageupdate/{message}', [MessageController::class, 'update']);
     Route::delete('/messagedestroy/{message}', [MessageController::class, 'destroy']);
+
+    Route::get('/notificationindex', [NotificationController::class, 'index']);
+    Route::get('/notificationunread', [NotificationController::class, 'unreadCount']);
+    Route::put('/notificationreadall', [NotificationController::class, 'markAllAsRead']);
+    Route::get('/notificationshow/{notification}', [NotificationController::class, 'show']);
+    Route::put('/notificationread/{notification}', [NotificationController::class, 'markAsRead']);
+    Route::delete('/notificationdestroy/{notification}', [NotificationController::class, 'destroy']);
 });
