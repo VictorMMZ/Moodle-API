@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
 use App\Models\Exercise;
+use App\Models\Notification;
 use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -174,6 +175,9 @@ class SubmissionController extends Controller
             'status' => 'graded',
             'graded_at' => now(),
         ])->save();
+
+        Notification::notifyGraded($submission);
+        
 
         return response()->json($submission->load([
             'exercise:id,class_id,title,max_grade',

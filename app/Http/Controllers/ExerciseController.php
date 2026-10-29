@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
 use App\Models\Exercise;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -62,6 +63,10 @@ class ExerciseController extends Controller
 
         $exercise = Exercise::create($data);
 
+        if ($exercise->published_at?->isPast()) {
+            Notification::notifyNewExercise($exercise);
+        }
+
         return response()->json($exercise->load('classRoom:id,name'), 201);
     }
 
@@ -80,7 +85,12 @@ class ExerciseController extends Controller
             'due_date' => ['sometimes', 'nullable', 'date'],
         ]);
 
+        $wasPublished = $exercise->published_at?->isPast() ?? false;
         $exercise->update($data);
+
+        if (! $wasPublished && $exercise->published_at?->isPast()) {
+            Notification::notifyNewExercise($exercise);
+        }
 
         return response()->json($exercise->load('classRoom:id,name'));
     }
