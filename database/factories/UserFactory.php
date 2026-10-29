@@ -25,17 +25,27 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-           'username' => fake()->userName(),
+           'username' => fake()->unique()->userName(),
            'first_name' => fake()->firstName(),
            'last_name' => fake()->lastName(),
            'email' => fake()->unique()->safeEmail(),
            'password' => static::$password ??= Hash::make('password'),
            'role' => 'student',
-           'id_number' => fake()->unique()->randomNumber(),
-           'avatar' => fake()->imageUrl(),
+           'id_number' => fake()->unique()->numerify('########'),
+           'avatar' => null,
            'is_active' => true,
            'last_login_at' => now(),
         ];
+    }
+
+    public function teacher(): static
+    {
+        return $this->state(fn () => ['role' => 'teacher']);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn () => ['role' => 'admin']);
     }
 
     /**

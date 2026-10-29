@@ -15,8 +15,8 @@ class ClassRoomFactory extends Factory
 			'name' => fake()->unique()->words(2, true),
             'description' => fake()->sentence(),
             'code' => fake()->unique()->bothify('???-####'),
-            'is_active' => fake()->boolean(),
-            'teacher_id' => \App\Models\User::factory(),
+            'is_active' => true,
+            'teacher_id' => \App\Models\User::factory()->teacher(),
 		];
 	}
 }
