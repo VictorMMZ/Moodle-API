@@ -1,38 +1,139 @@
 # Moodle API
 
-API REST desarrollada con Laravel para un proyecto de plataforma educativa inspirado en Moodle.
+API REST desarrollada con Laravel para una plataforma educativa inspirada en Moodle. El proyecto permite gestionar usuarios, aulas virtuales, ejercicios, entregas y la comunicación entre profesores y alumnos.
 
-El objetivo del proyecto es construir un backend que permita gestionar usuarios, cursos, tareas, entregas y comunicación entre profesores y alumnos. El desarrollo se realizará de forma incremental, incorporando nuevas funcionalidades y sus correspondientes pruebas automatizadas.
+El objetivo es desarrollar un backend que sirva como base para una plataforma educativa en la que los profesores puedan gestionar sus aulas y ejercicios, mientras que los alumnos puedan acceder a las actividades, entregar sus trabajos y comunicarse con otros usuarios.
 
-> **Estado del proyecto:** en desarrollo. Hecho: base de datos, autenticación y gestión de clases con matrículas. Pendiente: ejercicios, entregas, mensajes y notificaciones.
+> **Estado del proyecto:** en desarrollo avanzado. Las funcionalidades principales de autenticación, gestión de aulas, ejercicios, entregas y mensajería están implementadas. La siguiente funcionalidad pendiente es el sistema de notificaciones.
 
 ## Tecnologías
 
 - **PHP** — lenguaje de programación.
-- **Laravel** — framework backend.
-- **MySQL** — sistema gestor de base de datos.
+- **Laravel 12** — framework backend.
+- **MySQL** — sistema gestor de bases de datos.
 - **Laravel Sanctum** — autenticación mediante sesiones y cookies.
+- **Eloquent ORM** — gestión de modelos, relaciones y consultas a la base de datos.
 - **PHPUnit / Laravel Testing** — pruebas automatizadas.
-- **Git y GitHub** — control de versiones y colaboración.
+- **Git y GitHub** — control de versiones y gestión del código.
 - **GitHub Actions** — integración continua (CI).
 
 ## Funcionalidades implementadas
 
-- **Base de datos:** migraciones de usuarios, clases, matrículas, ejercicios, entregas, mensajes y notificaciones. Modelos Eloquent completos para `User`, `ClassRoom` y `ClassStudent`; el resto están vacíos.
-- **Autenticación:** login, logout y usuario actual con sesión y cookies (Sanctum), rutas protegidas y tests.
-- **Clases:** CRUD con soft delete, matrícula y baja de alumnos, y listado de participantes, con permisos por rol (`student`, `teacher`, `admin`). 47 tests en `ClassRoomTest`.
-- **Integración continua:** pipeline inicial con GitHub Actions.
+### 1. Autenticación y gestión de usuarios
+
+- Inicio de sesión mediante credenciales.
+- Validación de las credenciales del usuario.
+- Gestión de sesiones y regeneración del identificador de sesión tras el inicio de sesión.
+- Cierre de sesión.
+- Protección de rutas mediante autenticación.
+- Actualización de la fecha del último acceso.
+- Gestión de usuarios con diferentes roles: administrador, profesor y alumno.
+- Control de acceso a las funcionalidades según el rol del usuario.
+
+### 2. Gestión de aulas virtuales
+
+Las aulas virtuales representan las asignaturas o cursos de la plataforma.
+
+- Gestión de las aulas y sus relaciones con los profesores.
+- Asociación de profesores con las aulas que administran.
+- Incorporación de alumnos a las aulas.
+- Búsqueda de alumnos por correo electrónico para concederles acceso a un aula.
+- Validación del rol del alumno antes de incorporarlo.
+- Control del estado de la inscripción para determinar si un alumno tiene acceso.
+- Posibilidad de retirar alumnos de un aula.
+- Control de permisos para que cada profesor gestione únicamente sus propias aulas, mientras que los administradores disponen de permisos globales.
+
+### 3. Gestión de ejercicios
+
+- Creación y gestión de ejercicios asociados a las aulas virtuales.
+- Asociación de cada ejercicio con su aula correspondiente.
+- Gestión del título y la puntuación máxima.
+- Publicación de ejercicios.
+- Control de acceso para impedir que los alumnos accedan a ejercicios que todavía no se han publicado.
+- Restricción de acceso a los ejercicios según la inscripción activa del alumno.
+- Control de permisos para profesores y administradores.
+
+### 4. Entrega de ejercicios
+
+Sistema que permite a los alumnos entregar sus trabajos y consultar el estado de sus entregas.
+
+- Envío de respuestas mediante texto.
+- Adjuntar archivos a las entregas.
+- Validación de los archivos permitidos y de su tamaño.
+- Almacenamiento de los archivos en el servidor.
+- Registro de la fecha y hora de entrega.
+- Consulta de entregas por alumno, ejercicio o permisos del usuario.
+- Posibilidad de actualizar una entrega que todavía no ha sido calificada.
+- Gestión del estado de las entregas.
+- Preparación de la estructura para incorporar calificaciones, comentarios de los profesores y fechas de corrección.
+- Restricción de acceso para que los alumnos gestionen únicamente sus propias entregas.
+- Restricción de acceso de los profesores a las entregas de sus aulas.
+- Protección de las entregas ya calificadas frente a modificaciones posteriores.
+
+### 5. Sistema de mensajería
+
+Implementación de la comunicación entre usuarios mediante mensajes privados.
+
+- Envío de mensajes entre usuarios.
+- Gestión del remitente y del destinatario.
+- Asunto y contenido del mensaje.
+- Registro de la fecha de lectura mediante el campo `read_at`.
+- Relaciones entre los mensajes y los usuarios.
+- Validación de los datos enviados a través de la API.
+- Control de acceso para impedir que los usuarios consulten o gestionen mensajes ajenos.
+
+### 6. Pruebas automatizadas
+
+El proyecto incorpora pruebas de funcionalidad para comprobar el comportamiento de la API.
+
+Entre los aspectos cubiertos se encuentran:
+
+- Autenticación y validación de credenciales.
+- Comportamiento de los endpoints.
+- Validación de datos.
+- Control de acceso y permisos.
+- Funcionamiento de las distintas funcionalidades implementadas.
+
+Las pruebas se amplían a medida que se incorporan nuevas funcionalidades.
+
+### 7. Integración continua (CI)
+
+Configuración de GitHub Actions para automatizar las comprobaciones del proyecto.
+
+- Ejecución del workflow ante los eventos configurados en el repositorio.
+- Instalación de dependencias mediante Composer.
+- Ejecución de las comprobaciones y pruebas configuradas.
+- Verificación automatizada de los cambios antes de integrarlos en las ramas principales de desarrollo.
+
+## Funcionalidades pendientes
+
+### Sistema de notificaciones
+
+Es la siguiente funcionalidad prevista para completar las funcionalidades principales del backend.
+
+El objetivo es informar a los usuarios de los acontecimientos relevantes de la plataforma.
+
+Entre las funcionalidades previstas se encuentran:
+
+- Notificar a los alumnos cuando se publique un nuevo ejercicio en sus aulas.
+- Notificar las fechas límite de entrega de las actividades.
+- Informar a los alumnos cuando sus entregas sean calificadas.
+- Consultar las notificaciones recibidas.
+- Marcar las notificaciones como leídas.
+- Respetar los permisos y las relaciones entre usuarios, aulas y ejercicios.
+
+Una vez implementado este sistema, se podrán revisar las funcionalidades integradas, ampliar las pruebas y preparar el proyecto para el desarrollo de la aplicación frontend.
 
 ## Requisitos previos
 
 Para ejecutar el proyecto en local necesitarás:
 
-- PHP compatible con la versión de Laravel utilizada.
+- PHP compatible con Laravel 12.
 - Composer.
 - MySQL.
 - Git.
 
-Consulta `composer.json` para verificar las versiones exactas de PHP y las dependencias requeridas.
+Consulta `composer.json` para comprobar las versiones exactas de PHP y las dependencias necesarias.
 
 ## Instalación y ejecución en local
 
@@ -51,13 +152,13 @@ composer install
 
 ### 3. Configurar las variables de entorno
 
-Copia el archivo de ejemplo:
+Copia el archivo de ejemplo `.env.example` y crea tu archivo `.env`.
+
+En Windows puedes realizar la copia manualmente o utilizar:
 
 ```bash
-cp .env.example .env
+copy .env.example .env
 ```
-
-En Windows, también puedes copiar `.env.example` manualmente y renombrar la copia como `.env`.
 
 Genera la clave de la aplicación:
 
@@ -67,7 +168,7 @@ php artisan key:generate
 
 ### 4. Configurar la base de datos
 
-Crea una base de datos local en MySQL y configura las siguientes variables en `.env` con tus propios valores:
+Crea una base de datos MySQL y configura las variables correspondientes en `.env`:
 
 ```env
 APP_NAME="Moodle API"
@@ -83,7 +184,7 @@ DB_USERNAME=tu_usuario
 DB_PASSWORD=tu_contraseña
 ```
 
-Adapta los valores a la configuración de tu entorno local.
+Adapta los valores a tu entorno local.
 
 ### 5. Ejecutar las migraciones
 
@@ -93,75 +194,80 @@ php artisan migrate
 
 Este comando crea las tablas definidas en las migraciones del proyecto.
 
-Si necesitas reiniciar la base de datos durante el desarrollo, ten en cuenta que `php artisan migrate:fresh` elimina todas las tablas existentes antes de volver a ejecutar las migraciones. No lo utilices en una base de datos con información que quieras conservar.
-
 ### 6. Iniciar el servidor
 
 ```bash
 php artisan serve
 ```
 
-Por defecto, Laravel estará disponible en:
+Por defecto, la aplicación estará disponible en:
 
-`http://localhost:8000`
+```text
+http://localhost:8000
+```
 
-El servidor integrado de Laravel está pensado para desarrollo local, no para producción.
+## Ejecutar las pruebas
 
-## Pruebas automatizadas
-
-Para ejecutar la suite de pruebas:
+Para ejecutar la suite de pruebas automatizadas:
 
 ```bash
 php artisan test
 ```
 
-Para ejecutar un test concreto:
+Las pruebas permiten comprobar el comportamiento de los endpoints y verificar que los cambios no introduzcan regresiones en las funcionalidades existentes.
+
+## Flujo de trabajo con Git
+
+El proyecto sigue un flujo de trabajo basado en ramas para desarrollar e integrar las funcionalidades de forma progresiva.
+
+- `main`: versión estable del proyecto.
+- `develop`: rama de integración de las funcionalidades.
+- `feature/*`: ramas dedicadas al desarrollo de nuevas funcionalidades.
+
+El flujo habitual es:
+
+1. Crear una rama `feature/*` a partir de `develop` actualizado.
+2. Implementar la funcionalidad y sus pruebas.
+3. Crear los commits correspondientes.
+4. Subir la rama al repositorio remoto.
+5. Abrir una Pull Request hacia `develop`.
+6. Revisar los cambios y comprobar que las pruebas y el workflow de CI se ejecutan correctamente.
+7. Integrar la funcionalidad en `develop`.
+8. Incorporar los cambios a `main` cuando la versión integrada sea estable.
+
+Ejemplo:
 
 ```bash
-php artisan test --filter=NombreDelTest
+git switch develop
+git pull origin develop
+git switch -c feature/notifications
 ```
 
-Las pruebas de autenticación comprueban, entre otros casos, el comportamiento del inicio de sesión con credenciales válidas y el rechazo de credenciales incorrectas.
+Después de desarrollar la funcionalidad:
 
-La configuración de pruebas puede requerir variables de entorno y una base de datos específicas. Utiliza un entorno de pruebas separado para evitar modificar accidentalmente los datos de desarrollo.
+```bash
+git add .
+git commit -m "feat: implement notifications"
+git push -u origin feature/notifications
+```
 
-## Estructura de ramas
+La integración se realiza mediante una Pull Request hacia `develop`.
 
-El proyecto utiliza un flujo de trabajo basado en ramas:
+## Objetivos del proyecto
 
-| Rama | Propósito |
-|---|---|
-| `main` | Versión estable del proyecto. |
-| `develop` | Integración de funcionalidades completadas. |
-| `feature/*` | Desarrollo de funcionalidades independientes. |
+Moodle-API tiene como objetivo consolidar conocimientos de desarrollo backend mediante la construcción de una API REST con una estructura organizada y funcionalidades propias de una plataforma educativa.
 
-### Flujo de trabajo
+El proyecto permite trabajar con:
 
-1. Crear una rama `feature/*` desde `develop`.
-2. Implementar la funcionalidad y sus pruebas.
-3. Ejecutar los tests localmente.
-4. Abrir un Pull Request hacia `develop`.
-5. Comprobar el resultado del pipeline de integración continua.
-6. Integrar los cambios cuando las comprobaciones sean satisfactorias.
-7. Promover `develop` a `main` cuando exista una versión estable.
+- Diseño y gestión de bases de datos relacionales.
+- Modelos y relaciones mediante Eloquent ORM.
+- Desarrollo de endpoints REST.
+- Autenticación basada en sesiones.
+- Autorización y control de acceso según roles.
+- Validación de datos y archivos.
+- Gestión de entregas y mensajería.
+- Pruebas automatizadas.
+- Control de versiones mediante Git.
+- Integración continua con GitHub Actions.
 
-## Roadmap
-
-Las siguientes funcionalidades están previstas, pero todavía no se consideran implementadas,cuando lo estén estarán marcadas con (x):
-
-- [x] Gestión completa de usuarios y roles.
-- [x] Gestión de clases y matriculación de alumnos.
-- [ ] Creación y gestión de tareas.
-- [ ] Entrega de ejercicios por parte de los alumnos.
-- [ ] Corrección y retroalimentación del profesor.
-- [ ] Mensajería entre usuarios.
-- [ ] Sistema de notificaciones.
-- [ ] Ampliación de las pruebas automatizadas.
-- [ ] Documentación de los endpoints de la API.
-- [ ] Integración con un frontend.
-
-## Objetivo del proyecto
-
-Desarrollar una API educativa con una estructura mantenible, autenticación segura, validación de datos, control de acceso y pruebas automatizadas.
-
-El proyecto se construye de manera incremental, priorizando la calidad del código, la separación de responsabilidades y las buenas prácticas de desarrollo.
+El desarrollo se realiza de forma incremental, incorporando funcionalidades mediante ramas independientes, pruebas y Pull Requests.
