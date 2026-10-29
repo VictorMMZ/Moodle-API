@@ -6,10 +6,12 @@ use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [UserController::class, 'store'])->middleware('throttle:5,1');
 
 // Rutas protegidas: requieren autenticación
 Route::middleware('auth:sanctum')->group(function () {

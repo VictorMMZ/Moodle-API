@@ -34,6 +34,8 @@ class UserController extends Controller
         return response()->json($users);
     }
 
+    // Registro público (POST /register): solo se puede elegir student o teacher.
+    // role e is_active no pueden venir libres porque la ruta no requiere login.
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -42,19 +44,13 @@ class UserController extends Controller
             'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['sometimes', Rule::in(self::ROLES)],
+            'role' => ['required', Rule::in(['student', 'teacher'])],
             'id_number' => ['nullable', 'string', 'max:50', 'unique:users,id_number'],
-            'avatar' => ['nullable', 'string', 'max:255'],
-            'bio' => ['nullable', 'string', 'max:2000'],
-            'language' => ['sometimes', 'string', 'max:5'],
-            'timezone' => ['sometimes', 'timezone'],
-            'is_active' => ['sometimes', 'boolean'],
         ]);
 
-      
         $user = User::create($data);
 
-        return response()->json($user->fresh(), 201);
+        return response()->json(['message' => 'Cuenta creada correctamente', 'user' => $user->fresh()], 201);
     }
 
     public function show(User $user): JsonResponse
