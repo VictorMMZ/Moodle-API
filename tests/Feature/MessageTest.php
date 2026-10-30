@@ -34,7 +34,10 @@ class MessageTest extends TestCase
             ->getJson('/api/messageindex')
             ->assertOk()
             ->assertJsonCount(1)
-            ->assertJsonPath('0.id', $message->id);
+            ->assertJsonPath('0.id', $message->id)
+            ->assertJsonPath('0.sender.id', $otherUser->id)
+            ->assertJsonPath('0.receiver.id', $user->id)
+            ->assertJsonMissingPath('0.sender.password');
     }
 
     public function test_usuario_autenticado_envia_mensaje_con_su_propio_id(): void
