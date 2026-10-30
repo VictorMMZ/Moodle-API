@@ -8,13 +8,17 @@ use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
+    private const PEOPLE = ['sender:id,first_name,last_name,email', 'receiver:id,first_name,last_name,email'];
+
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
 
         $messages = Message::query()
+            ->with(self::PEOPLE)
             ->where('sender_id', $userId)
             ->orWhere('receiver_id', $userId)
+            ->with(self::PEOPLE)
             ->latest()
             ->get();
 
@@ -31,7 +35,7 @@ class MessageController extends Controller
 
         $message = $request->user()->sentMessages()->create($data);
 
-        return response()->json($message, 201);
+        return response()->json($message->load(self::PEOPLE), 201);
     }
 
     public function show(Request $request, Message $message): JsonResponse
@@ -40,7 +44,7 @@ class MessageController extends Controller
             return response()->json(['message' => 'No tienes acceso a este mensaje.'], 403);
         }
 
-        return response()->json($message);
+        return response()->json($message->load(self::PEOPLE));
     }
 
     public function update(Request $request, Message $message): JsonResponse
