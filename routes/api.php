@@ -18,6 +18,7 @@ Route::post('/register', [UserController::class, 'store'])->middleware('throttle
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/listusers', [UserController::class, 'index']);
     Route::get('/classindex', [ClassRoomController::class, 'index']);
     Route::post('/classstore', [ClassRoomController::class, 'store']);
     Route::get('/classshow/{classroom}', [ClassRoomController::class, 'show']);
