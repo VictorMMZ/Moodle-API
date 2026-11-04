@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->string('type');
+            $table->string('file_path')->nullable();
             $table->decimal('max_grade', 8, 2);
             $table->timestamp('published_at')->nullable();
             $table->timestamp('due_date')->nullable();

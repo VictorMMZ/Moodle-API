@@ -49,6 +49,7 @@ Las aulas virtuales representan las asignaturas o cursos de la plataforma.
 - Asociación de cada ejercicio con su aula correspondiente.
 - Gestión del título y la puntuación máxima.
 - Publicación de ejercicios.
+- Adjuntar archivos PDF, Word o imágenes de hasta 10 MB; los usuarios autorizados pueden visualizarlos o descargarlos.
 - Control de acceso para impedir que los alumnos accedan a ejercicios que todavía no se han publicado.
 - Restricción de acceso a los ejercicios según la inscripción activa del alumno.
 - Control de permisos para profesores y administradores.

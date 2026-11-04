@@ -8,6 +8,8 @@ use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExerciseController extends Controller
 {
@@ -54,6 +56,7 @@ class ExerciseController extends Controller
             'max_grade' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:999999.99'],
             'published_at' => ['sometimes', 'nullable', 'date'],
             'due_date' => ['sometimes', 'nullable', 'date'],
+            'file' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp', 'max:10240'],
         ]);
 
         $classroom = ClassRoom::findOrFail($data['class_id']);
@@ -61,6 +64,14 @@ class ExerciseController extends Controller
             return response()->json(['message' => 'No tienes permiso para crear ejercicios en esta clase.'], 403);
         }
 
+        if ($request->hasFile('file')) {
+            $path = Storage::disk('local')->putFile('exercises', $request->file('file'));
+            if ($path === false) {
+                return response()->json(['message' => 'No se pudo guardar el archivo del ejercicio.'], 500);
+            }
+            $data['file_path'] = $path;
+        }
+        unset($data['file']);
         $exercise = Exercise::create($data);
 
         if ($exercise->published_at?->isPast()) {
@@ -83,16 +94,48 @@ class ExerciseController extends Controller
             'max_grade' => ['sometimes', 'required', 'numeric', 'decimal:0,2', 'min:0', 'max:999999.99'],
             'published_at' => ['sometimes', 'nullable', 'date'],
             'due_date' => ['sometimes', 'nullable', 'date'],
+            'file' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp', 'max:10240'],
         ]);
 
         $wasPublished = $exercise->published_at?->isPast() ?? false;
+        $oldPath = $exercise->file_path;
+        if ($request->hasFile('file')) {
+            $uploadedPath = Storage::disk('local')->putFile('exercises', $request->file('file'));
+            if ($uploadedPath === false) {
+                return response()->json(['message' => 'No se pudo guardar el archivo del ejercicio.'], 500);
+            }
+            $data['file_path'] = $uploadedPath;
+        }
+        unset($data['file']);
         $exercise->update($data);
 
         if (! $wasPublished && $exercise->published_at?->isPast()) {
             Notification::notifyNewExercise($exercise);
         }
 
+        if (isset($uploadedPath) && $oldPath && ! Storage::disk('local')->delete($oldPath)) {
+            return response()->json(['message' => 'El ejercicio se guardó, pero no se pudo eliminar el archivo anterior.'], 500);
+        }
+
         return response()->json($exercise->load('classRoom:id,name'));
+    }
+
+    public function file(Request $request, Exercise $exercise): BinaryFileResponse|JsonResponse
+    {
+        if (! $this->canView($request->user(), $exercise)) {
+            return response()->json(['message' => 'No tienes acceso a este ejercicio.'], 403);
+        }
+
+        if (! $exercise->file_path || ! Storage::disk('local')->exists($exercise->file_path)) {
+            return response()->json(['message' => 'El archivo de este ejercicio no está disponible.'], 404);
+        }
+
+        $path = Storage::disk('local')->path($exercise->file_path);
+        $headers = ['X-Content-Type-Options' => 'nosniff'];
+
+        return $request->boolean('download')
+            ? response()->download($path, null, $headers)
+            : response()->file($path, $headers);
     }
 
     public function destroy(Request $request, Exercise $exercise): JsonResponse
@@ -125,6 +168,7 @@ class ExerciseController extends Controller
                 ->wherePivot('status', 'active')
                 ->exists();
     }
+
 
     
 }

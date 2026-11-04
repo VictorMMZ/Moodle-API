@@ -7,6 +7,8 @@ use App\Models\ClassStudent;
 use App\Models\Exercise;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ExerciseTest extends TestCase
@@ -56,6 +58,7 @@ class ExerciseTest extends TestCase
         $this->getJson('/api/exerciseindex')->assertUnauthorized();
         $this->postJson('/api/exercisestore')->assertUnauthorized();
         $this->getJson("/api/exerciseshow/{$exercise->id}")->assertUnauthorized();
+        $this->getJson("/api/exercisefile/{$exercise->id}")->assertUnauthorized();
         $this->putJson("/api/exerciseupdate/{$exercise->id}")->assertUnauthorized();
         $this->deleteJson("/api/exercisedestroy/{$exercise->id}")->assertUnauthorized();
     }
@@ -199,5 +202,97 @@ class ExerciseTest extends TestCase
 
         $this->putJson("/api/exerciseupdate/{$exercise->id}", ['type' => 'quiz'])->assertOk();
         $this->deleteJson("/api/exercisedestroy/{$exercise->id}")->assertOk();
+    }
+
+    public function test_adjunto_se_guarda_y_alumno_autorizado_puede_verlo_y_descargarlo(): void
+    {
+        Storage::fake('local');
+        $teacher = $this->makeUser('teacher');
+        $student = $this->makeUser('student');
+        $classroom = $this->makeClassroom($teacher);
+        $this->enroll($classroom, $student);
+        $this->actingAs($teacher, 'web');
+
+        $response = $this->postJson('/api/exercisestore', [
+            'class_id' => $classroom->id,
+            'title' => 'Ejercicio',
+            'description' => 'Contenido',
+            'type' => 'assignment',
+            'max_grade' => 10,
+            'published_at' => now()->subMinute()->toDateTimeString(),
+            'file' => UploadedFile::fake()->createWithContent('enunciado.pdf', "%PDF-1.4\n%%EOF"),
+        ])->assertCreated();
+
+        $id = $response->json('id');
+        $path = $response->json('file_path');
+        $this->assertNotEmpty($path);
+        Storage::disk('local')->assertExists($path);
+        $this->assertDatabaseHas('exercises', ['id' => $id, 'file_path' => $path]);
+
+        app('auth')->forgetGuards();
+        $this->actingAs($student, 'web');
+        $this->get("/api/exercisefile/{$id}")->assertOk()
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertHeader('Content-Type', 'application/pdf');
+        $this->get("/api/exercisefile/{$id}?download=1")->assertOk()
+            ->assertDownload(basename($path));
+
+        app('auth')->forgetGuards();
+        $this->actingAs($this->makeUser('student'), 'web');
+        $this->getJson("/api/exercisefile/{$id}")->assertForbidden();
+    }
+
+    public function test_archivo_respeta_publicacion_inscripcion_y_ausencia(): void
+    {
+        Storage::fake('local');
+        $student = $this->makeUser('student');
+        $classroom = $this->makeClassroom($this->makeUser('teacher'));
+        $this->enroll($classroom, $student);
+        $draft = $this->makeExercise($classroom);
+        $scheduled = $this->makeExercise($classroom, ['published_at' => now()->addDay()]);
+        $published = $this->makeExercise($classroom, ['published_at' => now()->subMinute()]);
+        $inactiveClass = $this->makeClassroom($this->makeUser('teacher'));
+        $this->enroll($inactiveClass, $student, 'inactive');
+        $inactive = $this->makeExercise($inactiveClass, ['published_at' => now()->subMinute()]);
+        $this->actingAs($student, 'web');
+
+        $this->getJson("/api/exercisefile/{$draft->id}")->assertForbidden();
+        $this->getJson("/api/exercisefile/{$scheduled->id}")->assertForbidden();
+        $this->getJson("/api/exercisefile/{$inactive->id}")->assertForbidden();
+        $this->getJson("/api/exercisefile/{$published->id}")->assertNotFound();
+    }
+
+    public function test_actualizar_adjunto_conserva_o_reemplaza_archivo_y_valida_tamano_y_tipo(): void
+    {
+        Storage::fake('local');
+        $teacher = $this->makeUser('teacher');
+        $exercise = $this->makeExercise($this->makeClassroom($teacher));
+        $oldPath = UploadedFile::fake()->create('anterior.pdf', 10, 'application/pdf')->store('exercises', 'local');
+        $exercise->update(['file_path' => $oldPath]);
+        $this->actingAs($teacher, 'web');
+
+        $this->putJson("/api/exerciseupdate/{$exercise->id}", ['title' => 'Actualizado'])->assertOk()
+            ->assertJsonPath('file_path', $oldPath);
+        Storage::disk('local')->assertExists($oldPath);
+
+        $this->postJson("/api/exerciseupdate/{$exercise->id}", [
+            '_method' => 'PUT',
+            'file' => UploadedFile::fake()->create('nuevo.pdf', 10, 'application/pdf'),
+        ])->assertOk();
+        $newPath = $exercise->fresh()->file_path;
+        $this->assertNotEquals($oldPath, $newPath);
+        Storage::disk('local')->assertMissing($oldPath);
+        Storage::disk('local')->assertExists($newPath);
+
+        foreach ([
+            UploadedFile::fake()->create('archivo.txt', 10, 'text/plain'),
+            UploadedFile::fake()->create('grande.pdf', 10241, 'application/pdf'),
+        ] as $file) {
+            $this->postJson("/api/exerciseupdate/{$exercise->id}", [
+                '_method' => 'PUT',
+                'file' => $file,
+            ])->assertUnprocessable()->assertJsonValidationErrors('file');
+        }
+        $this->assertSame($newPath, $exercise->fresh()->file_path);
     }
 }

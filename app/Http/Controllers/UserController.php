@@ -29,7 +29,7 @@ class UserController extends Controller
                 });
             })
             ->orderBy('last_name')
-            ->paginate(15);
+            ->get();
 
         return response()->json($users);
     }

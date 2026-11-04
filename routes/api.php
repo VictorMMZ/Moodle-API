@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/exerciseindex', [ExerciseController::class, 'index']);
     Route::post('/exercisestore', [ExerciseController::class, 'store']);
     Route::get('/exerciseshow/{exercise}', [ExerciseController::class, 'show']);
+    Route::get('/exercisefile/{exercise}', [ExerciseController::class, 'file']);
     Route::put('/exerciseupdate/{exercise}', [ExerciseController::class, 'update']);
     Route::delete('/exercisedestroy/{exercise}', [ExerciseController::class, 'destroy']);
 
