@@ -20,6 +20,7 @@ class Exercise extends Model
         'max_grade',
         'published_at',
         'due_date',
+        'file_path',
     ];
 
     protected function casts(): array
