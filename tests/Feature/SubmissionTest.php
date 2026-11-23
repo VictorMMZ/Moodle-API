@@ -50,6 +50,31 @@ class SubmissionTest extends TestCase
         ]);
     }
 
+    public function test_lista_de_entregas_incluye_la_clase_del_ejercicio_y_solo_las_del_alumno(): void
+    {
+        $student = $this->makeUser('student');
+        $otherStudent = $this->makeUser('student');
+        $exercise = $this->makeExercise($this->makeUser('teacher'));
+        foreach ([$student, $otherStudent] as $owner) {
+            Submission::create([
+                'exercise_id' => $exercise->id,
+                'student_id' => $owner->id,
+                'content' => 'Mi respuesta',
+                'status' => 'submitted',
+                'submitted_at' => now(),
+            ]);
+        }
+
+        $this->actingAs($student, 'web')
+            ->getJson('/api/submissionindex')
+            ->assertOk()
+            ->assertJsonCount(1)
+            ->assertJsonPath('0.student_id', $student->id)
+            ->assertJsonPath('0.exercise.class_id', $exercise->class_id)
+            ->assertJsonPath('0.exercise.class_room.id', $exercise->class_id)
+            ->assertJsonPath('0.exercise.class_room.name', 'Matemáticas');
+    }
+
     public function test_alumno_puede_entregar_archivos_pdf_doc_e_imagenes(): void
     {
         Storage::fake('local');

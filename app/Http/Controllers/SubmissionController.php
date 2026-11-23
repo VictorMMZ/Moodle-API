@@ -20,6 +20,7 @@ class SubmissionController extends Controller
         $submissions = Submission::query()
             ->with([
                 'exercise:id,class_id,title,max_grade',
+                'exercise.classRoom:id,name',
                 'student:id,first_name,last_name,email',
             ]);
 
@@ -106,6 +107,10 @@ class SubmissionController extends Controller
             'feedback' => null,
             'graded_at' => null,
         ]);
+         // no se puede mandar una entrega si la fecha de entrega ha pasado
+        if($submission?->submitted_at > $exercise->due_date) {
+            return response()->json(['message' => 'No se puede enviar la entrega después de la fecha límite. Hable con el profesor.'], 422);
+        }
         $submission->save();
 
         if (isset($uploadedPath) && $oldPath && $oldPath !== $uploadedPath && ! Storage::disk('local')->delete($oldPath)) {
